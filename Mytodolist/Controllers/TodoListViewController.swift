@@ -10,6 +10,7 @@ import UIKit
 
 class TodoListViewController: UITableViewController {
     var itemArray = [item]()
+    let dataFilePath = FileManager.default.urls(for: .documentDirectory,in: .userDomainMask).first?.appendingPathComponent("Items.plist")
     
     let defaults = UserDefaults.standard
     
@@ -31,9 +32,9 @@ class TodoListViewController: UITableViewController {
         
         
      
-        if let items  = defaults.array(forKey: "TodoListArray") as? [item]{
-            itemArray = items
-    }
+//        if let items  = defaults.array(forKey: "TodoListArray") as? [item]{
+//            itemArray = items
+//    }
         }
     
 
@@ -65,13 +66,15 @@ class TodoListViewController: UITableViewController {
        // print(itemArray[indexPath.row])
         
         itemArray[indexPath.row].done = !itemArray[indexPath.row].done
+        
+        saveItems()
 //        if tableView.cellForRow(at: indexPath)?.accessoryType == .checkmark{
 //            tableView.cellForRow(at: indexPath)?.accessoryType = .none
 //        }else {
 //            tableView.cellForRow(at: indexPath)?.accessoryType = .checkmark
 //        }
 //
-        tableView.reloadData()
+        //tableView.reloadData()
         tableView.deselectRow(at: indexPath, animated: true)
     }
 
@@ -86,7 +89,9 @@ class TodoListViewController: UITableViewController {
             let newItem = item()
             newItem.title = textField.text!
             self.itemArray.append(newItem)
-            self.defaults.set(self.itemArray, forKey: "TodoListArray")
+          //  self.defaults.set(self.itemArray, forKey: "TodoListArray")
+            
+           self.saveItems()
             
             
             self.tableView.reloadData()
@@ -97,6 +102,16 @@ class TodoListViewController: UITableViewController {
         }
         alert.addAction(action)
         present(alert, animated: true, completion: nil)
+    }
+    
+    func  saveItems(){
+        let encoder = PropertyListEncoder()
+        do{
+            let data = try encoder.encode(itemArray)
+            try data.write(to: dataFilePath!)
+        }catch{
+            print("error encoding item array , \(error)" )
+        }
     }
     
 }
