@@ -17,20 +17,20 @@ class TodoListViewController: UITableViewController {
     override func viewDidLoad() {
         super.viewDidLoad()
         
-        let newItem = item()
-        newItem.title = "Travel"
-       // newItem.done = true
-        itemArray.append(newItem)
+//        let newItem = item()
+//        newItem.title = "Travel"
+//       // newItem.done = true
+//        itemArray.append(newItem)
+//
+//        let newItem1 = item()
+//        newItem1.title = "Shop"
+//        itemArray.append(newItem1)
+//
+//        let newItem2 = item()
+//        newItem2.title = "Test"
+//        itemArray.append(newItem2)
         
-        let newItem1 = item()
-        newItem1.title = "Shop"
-        itemArray.append(newItem1)
-        
-        let newItem2 = item()
-        newItem2.title = "Test"
-        itemArray.append(newItem2)
-        
-        
+        loadItems()
      
 //        if let items  = defaults.array(forKey: "TodoListArray") as? [item]{
 //            itemArray = items
@@ -94,7 +94,7 @@ class TodoListViewController: UITableViewController {
            self.saveItems()
             
             
-            self.tableView.reloadData()
+            
         }
         alert.addTextField { (alertTextField) in
             alertTextField.placeholder = "Create New Item"
@@ -111,6 +111,20 @@ class TodoListViewController: UITableViewController {
             try data.write(to: dataFilePath!)
         }catch{
             print("error encoding item array , \(error)" )
+        }
+        self.tableView.reloadData()
+    }
+    
+    func loadItems(){
+      
+       if let data = try? Data(contentsOf: dataFilePath!)
+        {
+            let decoder = PropertyListDecoder()
+            do{
+                itemArray = try decoder.decode([item].self, from: data)
+            }catch {
+                print("error decoding\(error)")
+            }
         }
     }
     
