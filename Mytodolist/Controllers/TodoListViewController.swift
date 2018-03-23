@@ -8,7 +8,9 @@
 
 import UIKit
 import RealmSwift
-class TodoListViewController: UITableViewController {
+
+
+class TodoListViewController: SwipeTableViewController {
     
     let realm = try! Realm()
     
@@ -19,13 +21,12 @@ class TodoListViewController: UITableViewController {
             loadItems()
         }
     }
-    //let dataFilePath = FileManager.default.urls(for: .documentDirectory,in: .userDomainMask).first?.appendingPathComponent("Items.plist")
-    // let context = (UIApplication.shared.delegate as! AppDelegate).persistentContainer.viewContext
+    
     let defaults = UserDefaults.standard
     
     override func viewDidLoad() {
         super.viewDidLoad()
-        
+        tableView.rowHeight = 80.0
        // print(FileManager.default.urls(for: .documentDirectory,in: .userDomainMask))
 
         
@@ -42,7 +43,8 @@ class TodoListViewController: UITableViewController {
     override func tableView(_ tableView: UITableView, cellForRowAt indexPath: IndexPath) -> UITableViewCell {
         
        // let cell = UITableViewCell(style: .default, reuseIdentifier: "ToDoItemCell")
-       let cell = tableView.dequeueReusableCell(withIdentifier: "ToDoItemCell", for: indexPath)
+       //let cell = tableView.dequeueReusableCell(withIdentifier: "ToDoItemCell", for: indexPath)
+        let cell = super.tableView(tableView, cellForRowAt: indexPath)
         if let item = todoItems?[indexPath.row]{
             cell.textLabel?.text = item.title
             
@@ -54,6 +56,22 @@ class TodoListViewController: UITableViewController {
        
         return cell
         
+    }
+    
+    
+    
+    //MARK: Deletion Method
+    override func updateModel(at indexPath: IndexPath) {
+        if let itemForDeletion = self.todoItems?[indexPath.row]{
+            do{
+                try self.realm.write {
+                    self.realm.delete(itemForDeletion)
+                }
+            }catch {
+                print("error in deletion, \(error)")
+            }
+            
+        }
     }
  // TableView Delegate Methods
      override func tableView(_ tableView: UITableView, didSelectRowAt indexPath: IndexPath) {

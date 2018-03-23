@@ -9,14 +9,15 @@
 import UIKit
 import RealmSwift
 
-class CategoryTableViewController: UITableViewController {
+
+class CategoryTableViewController: SwipeTableViewController {
     let realm = try! Realm()
     var categoryArray : Results<Category>?
    // let context = (UIApplication.shared.delegate as! AppDelegate).persistentContainer.viewContext
     override func viewDidLoad() {
         super.viewDidLoad()
        loadCategories()
-       
+       tableView.rowHeight = 80.0
     }
 
 
@@ -25,14 +26,9 @@ class CategoryTableViewController: UITableViewController {
         
         let alert = UIAlertController(title: "Add New Category", message: "", preferredStyle: .alert)
         let action = UIAlertAction(title: "Add Category", style: .default) { (action) in
-            // What will happen when user clicks the add item button on UIAlert
-            //print(textField.text!)
             let newCategory = Category()
             newCategory.name = textField.text!
-            //newItem.done = false
-            //self.categoryArray.append(newCategory)
-            //  self.defaults.set(self.itemArray, forKey: "TodoListArray")
-            
+           
             self.save(category: newCategory)
             
         }
@@ -50,12 +46,11 @@ class CategoryTableViewController: UITableViewController {
     }
     
     override func tableView(_ tableView: UITableView, cellForRowAt indexPath: IndexPath) -> UITableViewCell {
-        let cell = tableView.dequeueReusableCell(withIdentifier: "CategoryCell", for: indexPath)
-        //let item = categoryArray[indexPath.row]
+
+        let cell = super.tableView(tableView, cellForRowAt: indexPath)
+       
+        cell.textLabel?.text = categoryArray?[indexPath.row].name ?? "No Categories Added"
         
-       cell.textLabel?.text = categoryArray?[indexPath.row].name ?? "No Categories Added"
-        
-       // cell.accessoryType = item.done ? .checkmark : .none
         
         return cell
     }
@@ -74,9 +69,24 @@ class CategoryTableViewController: UITableViewController {
             destinationVC.selectedCategory = categoryArray?[indexPath.row]
         }
     }
+    
+    //MARK: Deletion Method
+    override func updateModel(at indexPath: IndexPath) {
+        if let categoryForDeletion = self.categoryArray?[indexPath.row]{
+                do{
+                    try self.realm.write {
+                        self.realm.delete(categoryForDeletion)
+                    }
+                }catch {
+                    print("error in deletion, \(error)")
+                }
+            
+            }
+    }
+    
     //MARK: Data Manipulation Methods
     func  save(category : Category){
-        // let encoder = PropertyListEncoder()
+        
         do{
             try realm.write {
                 realm.add(category)
@@ -96,3 +106,5 @@ class CategoryTableViewController: UITableViewController {
 
     
 }
+
+
